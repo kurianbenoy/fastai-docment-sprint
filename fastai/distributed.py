@@ -114,8 +114,17 @@ class DistributedDL(TfmdDL):
         def _inner(b):
             if b.ndim>0:
                 # for each rank, compute overflow of read idxs vs self.n and accumulate them to unpad totals after gathering
-                n = sum([min(0,max(-len(b)//self.world_size,
-                                   self.n-(self.i+r*self.n_padded//self.world_size))) for r in range(self.world_size)])
+                n = sum(
+                    min(
+                        0,
+                        max(
+                            -len(b) // self.world_size,
+                            self.n - (self.i + r * self.n_padded // self.world_size),
+                        ),
+                    )
+                    for r in range(self.world_size)
+                )
+
                 b = b[:n or None]
             return b
         return apply(_inner,b) if gather and all(hasattr(self,o) for o in ('i','n','n_padded')) else b

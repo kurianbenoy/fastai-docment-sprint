@@ -58,7 +58,8 @@ def load_model(file, model, opt, with_opt=True, device=None, strict=True):
 # Cell
 def _try_concat(o):
     try:    return torch.cat(o)
-    except: return sum([L(o_[i,:] for i in range_of(o_)) for o_ in o], L())
+    except:
+        return sum((L(o_[i,:] for i in range_of(o_)) for o_ in o), L())
 
 # Cell
 _before_epoch = [event.before_fit, event.before_epoch]
@@ -146,9 +147,8 @@ class Learner(GetAttr):
 
     def _bn_bias_state(self, with_bias): return norm_bias_params(self.model, with_bias).map(self.opt.state)
     def create_opt(self):
-        if isinstance(self.opt_func, partial):
-            if 'lr' in self.opt_func.keywords:
-                self.lr = self.opt_func.keywords['lr']
+        if isinstance(self.opt_func, partial) and 'lr' in self.opt_func.keywords:
+            self.lr = self.opt_func.keywords['lr']
         self.opt = self.opt_func(self.splitter(self.model), lr=self.lr)
         if not self.wd_bn_bias:
             for p in self._bn_bias_state(True ): p['do_wd'] = False
@@ -465,7 +465,8 @@ class ValueMetric(Metric):
     def value(self): return self.func()
 
     @property
-    def name(self): return self.metric_name if self.metric_name else self.func.__name__
+    def name(self):
+        return self.metric_name or self.func.__name__
 
 # Cell
 from fastprogress.fastprogress import format_time
@@ -496,7 +497,7 @@ class Recorder(Callback):
         elif self.valid_metrics: names = L('train_loss', 'valid_loss') + names
         else: names = L('train_loss') + names
         if self.add_time: names.append('time')
-        self.metric_names = 'epoch'+names
+        self.metric_names = f'epoch{names}'
         self.smooth_loss.reset()
 
     def after_batch(self):

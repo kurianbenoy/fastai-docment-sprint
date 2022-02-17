@@ -143,9 +143,8 @@ def decode_spec_tokens(tokens):
         elif arg is None:
             try:    arg = int(t)
             except: rule = None
-        else:
-            if rule == TK_REP: new_toks.append(t * arg)
-            else:              new_toks += [t] * arg
+        elif rule == TK_REP: new_toks.append(t * arg)
+        else:              new_toks += [t] * arg
     return new_toks
 
 # Cell
