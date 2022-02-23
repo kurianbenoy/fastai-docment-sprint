@@ -34,27 +34,45 @@ dev_requirements = (cfg.get('dev_requirements') or '').split()
 long_description = open('README.md').read()
 # ![png](docs/images/output_13_0.png)
 for ext in ['png', 'svg']:
-    long_description = re.sub(r'!\['+ext+'\]\((.*)\)', '!['+ext+']('+'https://raw.githubusercontent.com/{}/{}'.format(cfg['user'],cfg['lib_name'])+'/'+cfg['branch']+'/\\1)', long_description)
+    long_description = re.sub(
+        f'!\\[{ext}\\]\\((.*)\\)',
+        f'![{ext}]('
+        + 'https://raw.githubusercontent.com/{}/{}'.format(
+            cfg['user'], cfg['lib_name']
+        )
+        + '/'
+        + cfg['branch']
+        + '/\\1)',
+        long_description,
+    )
+
     long_description = re.sub(r'src=\"(.*)\.'+ext+'\"', 'src=\"https://raw.githubusercontent.com/{}/{}'.format(cfg['user'],cfg['lib_name'])+'/'+cfg['branch']+'/\\1.'+ext+'\"', long_description)
 
 setuptools.setup(
-    name = cfg['lib_name'],
-    license = lic[0],
-    classifiers = [
-        'Development Status :: ' + statuses[int(cfg['status'])],
-        'Intended Audience :: ' + cfg['audience'].title(),
-        'License :: ' + lic[1],
-        'Natural Language :: ' + cfg['language'].title(),
-    ] + ['Programming Language :: Python :: '+o for o in py_versions[py_versions.index(min_python):]],
-    url = cfg['git_url'],
-    packages = setuptools.find_packages(),
-    include_package_data = True,
-    install_requires = requirements,
-    extras_require={ 'dev': dev_requirements },
-    python_requires  = '>=' + cfg['min_python'],
-    long_description = long_description,
-    long_description_content_type = 'text/markdown',
-    zip_safe = False,
-    entry_points = { 'console_scripts': cfg.get('console_scripts','').split() },
-    **setup_cfg)
+    name=cfg['lib_name'],
+    license=lic[0],
+    classifiers=(
+        [
+            'Development Status :: ' + statuses[int(cfg['status'])],
+            'Intended Audience :: ' + cfg['audience'].title(),
+            f'License :: {lic[1]}',
+            'Natural Language :: ' + cfg['language'].title(),
+        ]
+        + [
+            f'Programming Language :: Python :: {o}'
+            for o in py_versions[py_versions.index(min_python) :]
+        ]
+    ),
+    url=cfg['git_url'],
+    packages=setuptools.find_packages(),
+    include_package_data=True,
+    install_requires=requirements,
+    extras_require={'dev': dev_requirements},
+    python_requires='>=' + cfg['min_python'],
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    zip_safe=False,
+    entry_points={'console_scripts': cfg.get('console_scripts', '').split()},
+    **setup_cfg,
+)
 
